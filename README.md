@@ -22,3 +22,7 @@ You delete all .o files and executables.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 Added: Rhia Singh
 1. Pt1: To compile, pass 2 iterators to denotate the range of search. [start, end). Also, pass by constant reference the value that is needs to be found within the [start,end) range. If value is found, then the iterator to its location is returned and if it is not found, then the iterator to end is returned. 
+2.Tree class - references: https://users.cis.fiu.edu/~weiss/dsaajava3/code/AvlTree.java for AVL tree source code.
+  Template Class syntax from https://www.ligoriotiziana.info/wp-content/uploads/2019/10/Lecture3_ADTTemplates.pdf
+  
+
