@@ -6,19 +6,23 @@ Use to test the avl_tree implementation.
 #include "avl_tree.h"
 #include <iostream>
 
-using namespace HwTwo;
+/*Rhia Singh
+This creates an AVL tree that stores sequence_map objects. 
+February 18, 2020
+*/
 
-void TestPart2a(){
+#include "sequence_map.h"
+#include "avl_tree.h"
+#include <fstream> //std::ifstream
+#include <iostream> //std::cout
+#include <sstream> //std::stringstream
+#include <vector> //std::std::vector<char> v;
 
-	Tree<SequenceMap> a;
+//This needs to be a template file 
+//Change name of the class to match 2a pseudocode
 
-	std::string name = "rebase210.txt";
-	a.readFile(name);
-
-}
-
-int main(){
-
-	TestPart2a();
-
-}
+template< class T>
+class queryTree{
+public:
+private:
+};

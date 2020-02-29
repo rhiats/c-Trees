@@ -4,7 +4,7 @@ Use this file to test implementation in HW2Q1.cc
 */
 
 //#include "HW2Q1.cc"
-#include "sequence_map.h"
+#include "avl_tree.h"
 #include <iostream> //std::cout
 #include <iterator> //std::iterator
 #include <vector> // std::vector 
@@ -50,13 +50,13 @@ int main(){
 		outFile << v.at(i) << ' ';
 	}*/
 
-	std::string rec_site = "AarI";
+	/*std::string rec_site = "AarI";
 	std::string restriction_enzyme = "CACCTGCNNNN'NNNN";
 	SequenceMap enz_a(rec_site,restriction_enzyme); 
 
 	std::string rs = "AarI";
 	std::string re = "'NNNNNNNNGCAGGTG";
-	SequenceMap enz_b(rs,re);
+	SequenceMap enz_b(rs,re);*/
 
 	/*std::cout << "Enzyme A: "  << enz_a << std::endl;
 
@@ -64,12 +64,16 @@ int main(){
 
 	std::cout << enz_a.operator<(enz_b) << std::endl;*/
 
-	enz_a.Merge(enz_b);
+	/*enz_a.Merge(enz_b);
 
 	std::cout << "After merge: " << std::endl;
 
 	std::cout << "Enzyme A: "  << enz_a << std::endl;
 
-	std::cout << "Enzyme B: " << enz_b << std::endl;
+	std::cout << "Enzyme B: " << enz_b << std::endl;*/
 
+	AvlTree<SequenceMap> a;
+	std::string fileName = "rebase210.txt";
+	a.readFile(fileName);
+	a.printTree();
 }

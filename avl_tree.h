@@ -1,105 +1,472 @@
-/*Rhia Singh
-This creates an AVL tree that stores sequence_map objects. 
-February 18, 2020
-*/
+#ifndef AVL_TREE_H
+#define AVL_TREE_H
 
+#include "dsexceptions.h"
 #include "sequence_map.h"
-#include <fstream> //std::ifstream
-#include <iostream> //std::cout
+#include <algorithm>
+#include <iostream> 
+#include <sstream>
+#include <fstream>
+using namespace std;
 
-//This needs to be a template file 
-//Change name of the class to match 2a pseudocode
+// AvlTree class
+//
+// CONSTRUCTION: zero parameter
+//
+// ******************PUBLIC OPERATIONS*********************
+// void insert( x )       --> Insert x
+// void remove( x )       --> Remove x (unimplemented)
+// bool contains( x )     --> Return true if x is present
+// Comparable findMin( )  --> Return smallest item
+// Comparable findMax( )  --> Return largest item
+// boolean isEmpty( )     --> Return true if empty; else false
+// void makeEmpty( )      --> Remove all items
+// void printTree( )      --> Print tree in sorted order
+// ******************ERRORS********************************
+// Throws UnderflowException as warranted
 
-namespace HwTwo{
+template <typename Comparable>
+class AvlTree
+{
+  public:
+    AvlTree( ) : root{ nullptr }
+      { }
+    
+    AvlTree( const AvlTree & rhs ) : root{ nullptr }
+    {
+        root = clone( rhs.root );
+    }
 
-	template< class T>
-	class Tree{
-	public:
-		
-		//construct the tree.
-		Tree(){
-			root_ = nullptr;
-		}
-		
-		/*
-		//1 parameter constructor
-		avlTree();
+    AvlTree( AvlTree && rhs ) : root{ rhs.root }
+    {
+        rhs.root = nullptr;
+    }
+    
+    ~AvlTree( )
+    {
+        makeEmpty( );
+    }
 
-		//Big 5 - 1: Copy constructor
-		avlTree(const avlTree& some_tree);
-		//Big 5 - 2: Move Constructor
-		avlTree(avlTree&& tree);
-		//Big 5 - 3: Copy Assigntment
-		avlTree& operator=(const avlTree& t);
-		//Big 5 - 4: Move Assigntment
-		avlTree& operator=(avlTree&& other_tree);
-		//Big 5 - 5: Destructor
-		~avlTree(); */
-		//GetNextLineFromDatabaseFile(db_line)
-		std::string GetEnzymeAcronym(std::string& db_line){
-			std::string enzyme = "";
-			for (int i = 0; i < db_line.length(); i++){
-				if (db_line.at(i) == '/'){
-					return enzyme;
-				}else{
-					enzyme += db_line.at(i);
-				}
-			}
-			return enzyme;
-		}
-		std::string GetNextRecognitionSequence(std::string& db_line, std::string& enzyme){
-			std::string rec_site = "";
-			int j = enzyme.length();
-			for (int i = j; i < db_line.length(); i++){
-				if (db_line.at(i) == '/'){
-					return rec_site;
-				}else{
-					enzyme += db_line.at(i);
-				}
-			}
-			std::cout << db_line << std::endl;
-			return rec_site;
-		}
-		
+    /**
+     * Deep copy.
+     */
+    AvlTree & operator=( const AvlTree & rhs )
+    {
+        AvlTree copy = rhs;
+        std::swap( *this, copy );
+        return *this;
+    }
+        
+    /**
+     * Move.
+     */
+    AvlTree & operator=( AvlTree && rhs )
+    {
+        std::swap( root, rhs.root );
+        
+        return *this;
+    }
+    
+    /**
+     * Find the smallest item in the tree.
+     * Throw UnderflowException if empty.
+     */
+    const Comparable & findMin( ) const
+    {
+        if( isEmpty( ) )
+            throw UnderflowException{ };
+        return findMin( root )->element;
+    }
 
-		//Read the input file and construct sequence_map objects
-		const SequenceMap& readFile(std::string file_name){
-			//Instantiate an ifstream object to store the data from the text file. 
-			//Instantiate an string object to store each line in the file. 
-			std::ifstream inFile;
-			std::string heading;
-			std::string data;
+    /**
+     * Find the largest item in the tree.
+     * Throw UnderflowException if empty.
+     */
+    const Comparable & findMax( ) const
+    {
+        if( isEmpty( ) )
+            throw UnderflowException{ };
+        return findMax( root )->element;
+    }
 
-			//Open the txt file
-			inFile.open(file_name);
+    /**
+     * Returns true if x is found in the tree.
+     */
+    bool contains( const Comparable & x ) const
+    {
+        return contains( x, root );
+    }
 
-			//If the inFile object does not open, then return 0 to terminate function.
-			if(!inFile){SequenceMap();}
+    /**
+     * Test if the tree is logically empty.
+     * Return true if empty, false otherwise.
+     */
+    bool isEmpty( ) const
+    {
+        return root == nullptr;
+    }
 
-			//Store the heading of the file (first 27 lines of the file) in heading string.
-			for(int i = 0; i < 27; i++){
-				inFile >> heading;
-			}
-			Tree<SequenceMap> a_tree;
-			std::string db_line;
+    /**
+     * Print the tree contents in sorted order.
+     */
+    void printTree( ) const
+    {
+        if( isEmpty( ) )
+            cout << "Empty tree" << endl;
+        else
+            printTree( root );
+    }
 
-			//Store the information about enzymes and restriction sites in data.
-			// Read the file line-by-line:
-			while (inFile >> db_line) {
-				//std::cout << db_line << std::endl;
-			 	// Get the first part of the line:
-			 	std::string an_enz_acro = GetEnzymeAcronym(db_line);
-			 	//std::cout << an_enz_acro << std::endl;
-			 	std::string a_reco_seq;
-			 	GetNextRecognitionSequence(db_line);
-			 	//while (GetNextRecognitionSequence(db_line, a_rego_seq)){
-					//SequenceMap new_sequence_map(a_reco_seq, an_enz_acro);
-					//a_tree.insert(new_sequence_map);
-			 	//} // End second while.
-			} // End first while.
-			inFile.close();
-		}
-	private:
-		Tree<T> *root_;
-	};//end avlTree
-} // end namespace HwTwo
+    /**
+     * Make the tree logically empty.
+     */
+    void makeEmpty( )
+    {
+        makeEmpty( root );
+    }
+
+    /**
+     * Insert x into the tree; duplicates are ignored.
+     */
+    void insert( const Comparable & x )
+    {
+        insert( x, root );
+    }
+     
+    /**
+     * Insert x into the tree; duplicates are ignored.
+     */
+    void insert( Comparable && x )
+    {
+        insert( std::move( x ), root );
+    }
+     
+    /**
+     * Remove x from the tree. Nothing is done if x is not found.
+     */
+    void remove( const Comparable & x )
+    {
+        remove( x, root );
+    }
+
+    //Parse each line of the database at the forward slash.
+    std::vector<std::string> parse(const std::string &s){
+        std::vector<std::string> result;
+        std::stringstream ss(s);
+        std::string item;
+
+        while (getline (ss, item, '/')) {
+            result.push_back(item);
+        }
+
+        return result;
+    }
+    
+
+    //Read the input file and construct sequence_map objects
+    const AvlTree& readFile(std::string file_name){
+        //Instantiate an ifstream object to store the data from the text file. 
+        //Instantiate an string object to store each line in the file. 
+        std::ifstream inFile;
+        std::string heading;
+        std::string data;
+
+        //Open the txt file
+        inFile.open(file_name);
+
+        //If the inFile object does not open, then return 0 to terminate function.
+        //if(!inFile){;}
+
+        //Store the heading of the file (first 27 lines of the file) in heading string.
+        for(int i = 0; i < 27; i++){
+            inFile >> heading;
+        }
+
+        AvlTree<SequenceMap> a_tree;
+        std::string db_line;
+
+        // Instantiate SequenceMap objects to store the information about enzymes and restriction sites in 
+        // Read the file line-by-line:
+        while (inFile >> db_line) {
+            std::vector<std::string> a = parse(db_line);
+            std::string an_enz_acro = a.at(0);
+            for (int i = 1; i < a.size(); i++){
+                std::string a_reco_seq = a.at(i);
+                SequenceMap new_sequence_map(a_reco_seq, an_enz_acro);
+                a_tree.insert(new_sequence_map);
+            }
+        }
+        inFile.close();
+        return a_tree;
+    }
+
+  private:
+    struct AvlNode
+    {
+        Comparable element;
+        AvlNode   *left;
+        AvlNode   *right;
+        int       height;
+
+        AvlNode( const Comparable & ele, AvlNode *lt, AvlNode *rt, int h = 0 )
+          : element{ ele }, left{ lt }, right{ rt }, height{ h } { }
+        
+        AvlNode( Comparable && ele, AvlNode *lt, AvlNode *rt, int h = 0 )
+          : element{ std::move( ele ) }, left{ lt }, right{ rt }, height{ h } { }
+    };
+
+    AvlNode *root;
+
+
+    /**
+     * Internal method to insert into a subtree.
+     * x is the item to insert.
+     * t is the node that roots the subtree.
+     * Set the new root of the subtree.
+     */
+    void insert( const Comparable & x, AvlNode * & t )
+    {
+        if( t == nullptr )
+            t = new AvlNode{ x, nullptr, nullptr };
+        else if( x < t->element )
+            insert( x, t->left );
+        else if( t->element < x )
+            insert( x, t->right );
+        
+        balance( t );
+    }
+
+    /**
+     * Internal method to insert into a subtree.
+     * x is the item to insert.
+     * t is the node that roots the subtree.
+     * Set the new root of the subtree.
+     */
+    void insert( Comparable && x, AvlNode * & t )
+    {
+        if( t == nullptr )
+            t = new AvlNode{ std::move( x ), nullptr, nullptr };
+        else if( x < t->element )
+            insert( std::move( x ), t->left );
+        else if( t->element < x )
+            insert( std::move( x ), t->right );
+        
+        balance( t );
+    }
+     
+    /**
+     * Internal method to remove from a subtree.
+     * x is the item to remove.
+     * t is the node that roots the subtree.
+     * Set the new root of the subtree.
+     */
+    void remove( const Comparable & x, AvlNode * & t )
+    {
+        if( t == nullptr )
+            return;   // Item not found; do nothing
+        
+        if( x < t->element )
+            remove( x, t->left );
+        else if( t->element < x )
+            remove( x, t->right );
+        else if( t->left != nullptr && t->right != nullptr ) // Two children
+        {
+            t->element = findMin( t->right )->element;
+            remove( t->element, t->right );
+        }
+        else
+        {
+            AvlNode *oldNode = t;
+            t = ( t->left != nullptr ) ? t->left : t->right;
+            delete oldNode;
+        }
+        
+        balance( t );
+    }
+    
+    static const int ALLOWED_IMBALANCE = 1;
+
+    // Assume t is balanced or within one of being balanced
+    void balance( AvlNode * & t )
+    {
+        if( t == nullptr )
+            return;
+        
+        if( height( t->left ) - height( t->right ) > ALLOWED_IMBALANCE ) {
+            if( height( t->left->left ) >= height( t->left->right ) )
+                rotateWithLeftChild( t );
+            else
+                doubleWithLeftChild( t );
+        } else if( height( t->right ) - height( t->left ) > ALLOWED_IMBALANCE ) {
+            if( height( t->right->right ) >= height( t->right->left ) )
+                rotateWithRightChild( t );
+            else
+                doubleWithRightChild( t );
+	}
+        t->height = max( height( t->left ), height( t->right ) ) + 1;
+    }
+    
+    /**
+     * Internal method to find the smallest item in a subtree t.
+     * Return node containing the smallest item.
+     */
+    AvlNode * findMin( AvlNode *t ) const
+    {
+        if( t == nullptr )
+            return nullptr;
+        if( t->left == nullptr )
+            return t;
+        return findMin( t->left );
+    }
+
+    /**
+     * Internal method to find the largest item in a subtree t.
+     * Return node containing the largest item.
+     */
+    AvlNode * findMax( AvlNode *t ) const
+    {
+        if( t != nullptr )
+            while( t->right != nullptr )
+                t = t->right;
+        return t;
+    }
+
+
+    /**
+     * Internal method to test if an item is in a subtree.
+     * x is item to search for.
+     * t is the node that roots the tree.
+     */
+    bool contains( const Comparable & x, AvlNode *t ) const
+    {
+        if( t == nullptr )
+            return false;
+        else if( x < t->element )
+            return contains( x, t->left );
+        else if( t->element < x )
+            return contains( x, t->right );
+        else
+            return true;    // Match
+    }
+/****** NONRECURSIVE VERSION*************************
+    bool contains( const Comparable & x, AvlNode *t ) const
+    {
+        while( t != nullptr )
+            if( x < t->element )
+                t = t->left;
+            else if( t->element < x )
+                t = t->right;
+            else
+                return true;    // Match
+
+        return false;   // No match
+    }
+*****************************************************/
+
+    /**
+     * Internal method to make subtree empty.
+     */
+    void makeEmpty( AvlNode * & t )
+    {
+        if( t != nullptr )
+        {
+            makeEmpty( t->left );
+            makeEmpty( t->right );
+            delete t;
+        }
+        t = nullptr;
+    }
+
+    /**
+     * Internal method to print a subtree rooted at t in sorted order.
+     */
+    void printTree( AvlNode *t ) const
+    {
+        if( t != nullptr )
+        {
+            printTree( t->left );
+            cout << t->element << endl;
+            printTree( t->right );
+        }
+    }
+
+    /**
+     * Internal method to clone subtree.
+     */
+    AvlNode * clone( AvlNode *t ) const
+    {
+        if( t == nullptr )
+            return nullptr;
+        else
+            return new AvlNode{ t->element, clone( t->left ), clone( t->right ), t->height };
+    }
+        // Avl manipulations
+    /**
+     * Return the height of node t or -1 if nullptr.
+     */
+    int height( AvlNode *t ) const
+    {
+        return t == nullptr ? -1 : t->height;
+    }
+
+    int max( int lhs, int rhs ) const
+    {
+        return lhs > rhs ? lhs : rhs;
+    }
+
+    /**
+     * Rotate binary tree node with left child.
+     * For AVL trees, this is a single rotation for case 1.
+     * Update heights, then set new root.
+     */
+    void rotateWithLeftChild( AvlNode * & k2 )
+    {
+        AvlNode *k1 = k2->left;
+        k2->left = k1->right;
+        k1->right = k2;
+        k2->height = max( height( k2->left ), height( k2->right ) ) + 1;
+        k1->height = max( height( k1->left ), k2->height ) + 1;
+        k2 = k1;
+    }
+
+    /**
+     * Rotate binary tree node with right child.
+     * For AVL trees, this is a single rotation for case 4.
+     * Update heights, then set new root.
+     */
+    void rotateWithRightChild( AvlNode * & k1 )
+    {
+        AvlNode *k2 = k1->right;
+        k1->right = k2->left;
+        k2->left = k1;
+        k1->height = max( height( k1->left ), height( k1->right ) ) + 1;
+        k2->height = max( height( k2->right ), k1->height ) + 1;
+        k1 = k2;
+    }
+
+    /**
+     * Double rotate binary tree node: first left child.
+     * with its right child; then node k3 with new left child.
+     * For AVL trees, this is a double rotation for case 2.
+     * Update heights, then set new root.
+     */
+    void doubleWithLeftChild( AvlNode * & k3 )
+    {
+        rotateWithRightChild( k3->left );
+        rotateWithLeftChild( k3 );
+    }
+
+    /**
+     * Double rotate binary tree node: first right child.
+     * with its left child; then node k1 with new right child.
+     * For AVL trees, this is a double rotation for case 3.
+     * Update heights, then set new root.
+     */
+    void doubleWithRightChild( AvlNode * & k1 )
+    {
+        rotateWithLeftChild( k1->right );
+        rotateWithRightChild( k1 );
+    }
+};
+
+#endif
